@@ -1,23 +1,45 @@
-version: '3.8'
-
 services:
-    prod:
-        container_name: nestjs_api_prod
+    mongodb:
+        container_name: mongodb
+        image: bitnami/mongodb:7.0.14-debian-12-r3
+        restart: unless-stopped
+        ports: 
+        - 27017:27017
+    redis:
+        container_name: redis
+        image: redis:8.0-M01-bookworm
+        ports:
+            - "6379:6379"
+        restart: unless-stopped
+    # redis-commander:
+    #     container_name: redis-commander
+    #     image: rediscommander/redis-commander:latest
+    #     environment:
+    #         - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD}
+    #         - HTTP_USER=redis_user
+    #         - HTTP_PASSWORD=asdf1234
+    #     ports:
+    #         - "8085:8081"
+    #     depends_on:
+    #         - redis
+
+    app:
+        container_name: app
         image: nestjs-api-prod:1.0.0
         environment:
             URL_MONGO_DB: ${URL_MONGO_DB}
+            REDIS_HOST: ${REDIS_HOST}
+            REDIS_PORT: ${REDIS_PORT}
+            REDIS_PASSWORD: ${REDIS_PASSWORD}
             SECRET_TOKEN: ${SECRET_TOKEN}
             EXPIRESIN_TOKEN: ${EXPIRESIN_TOKEN}
             FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
             FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
             FIREBASE_EMAIL_CLIENT: ${FIREBASE_EMAIL_CLIENT}
-            MAIL_HOST: ${MAIL_HOST}
-            MAIL_USER: ${MAIL_USER}
-            MAIL_PASSWORD: ${MAIL_PASSWORD}
-            MAIL_FROM: ${MAIL_FROM}
-            REDIS_HOST: ${REDIS_HOST}
-            REDIS_PORT: ${REDIS_PORT}
-            REDIS_PASSWORD: ${REDIS_PASSWORD}
+            # MAIL_HOST: ${MAIL_HOST}
+            # MAIL_USER: ${MAIL_USER}
+            # MAIL_PASSWORD: ${MAIL_PASSWORD}
+            # MAIL_FROM: ${MAIL_FROM}
         build:
             context: .
             dockerfile: Dockerfile
@@ -26,7 +48,8 @@ services:
         command: npm run start:prod
         ports:
             - 5000:5000
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
+        # volumes:
+        #     - .:/usr/src/app
+        #     - /usr/src/app/node_modules
         restart: unless-stopped
+

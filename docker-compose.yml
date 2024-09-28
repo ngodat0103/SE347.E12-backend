@@ -1,8 +1,16 @@
-version: '3.8'
-
 services:
-    prod:
-        container_name: nestjs_api_prod
+    redis:
+        image: redis:8.0-M01-bookworm
+        ports:
+            - 6379:6379
+        container_name: redis
+    mongodb:
+        image: mongodb/mongodb-community-server:7.0.2-ubi9
+        container_name: mongodb
+        ports:
+            - 27017:27017
+    app:
+        container_name: app
         image: nestjs-api-prod:1.0.0
         environment:
             URL_MONGO_DB: ${URL_MONGO_DB}
@@ -11,10 +19,10 @@ services:
             FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
             FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
             FIREBASE_EMAIL_CLIENT: ${FIREBASE_EMAIL_CLIENT}
-            MAIL_HOST: ${MAIL_HOST}
-            MAIL_USER: ${MAIL_USER}
-            MAIL_PASSWORD: ${MAIL_PASSWORD}
-            MAIL_FROM: ${MAIL_FROM}
+            # MAIL_HOST: ${MAIL_HOST}
+            # MAIL_USER: ${MAIL_USER}
+            # MAIL_PASSWORD: ${MAIL_PASSWORD}
+            # MAIL_FROM: ${MAIL_FROM}
             REDIS_HOST: ${REDIS_HOST}
             REDIS_PORT: ${REDIS_PORT}
             REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -26,7 +34,7 @@ services:
         command: npm run start:prod
         ports:
             - 5000:5000
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
-        restart: unless-stopped
+        # volumes:
+        #     - .:/usr/src/app
+        #     - /usr/src/app/node_modules
+        # restart: unle

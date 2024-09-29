@@ -1,29 +1,23 @@
-FROM node:16-alpine as builder
+FROM node:18-alpine AS base
 
-ENV NODE_ENV build
-
-USER node
-WORKDIR /home/node
-
-COPY package*.json ./
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /deps
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 RUN npm ci
 
-COPY --chown=node:node . .
-RUN npm run build \
-    && npm prune --production
+FROM base AS builder
+WORKDIR /build
+COPY --from=deps /deps/node_modules ./node_modules
+COPY . .
+RUN npm run build
+RUN npm ci --only=production && npm cache clean --force
 
-# ---
-
-FROM node:16-alpine
-
+FROM base AS runner
+WORKDIR /run
 ENV NODE_ENV production
-
-USER node
-WORKDIR /home/node
-
-COPY --from=builder --chown=node:node /home/node/package*.json ./
-COPY --from=builder --chown=node:node /home/node/node_modules/ ./node_modules/
-COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
-COPY --from=builder --chown=node:node /home/node/email/ ./email
-
-CMD ["node", "dist/server.js"]
+COPY --from=builder --chown=node:node --chmod=500 /build/node_modules/ ./node_modules
+COPY --from=builder --chown=node:node --chmod=500 /build/dist/ ./dist
+EXPOSE 5000
+WORKDIR /run/dist
+ENTRYPOINT ["node", "main.js"]

@@ -25,3 +25,20 @@ REDIS_PASSWORD=<your_redis_password>
 # MAIL_USER=<your_mail_user>
 # MAIL_PASSWORD=<your_mail_password>
 # MAIL_FROM=<your_mail_from>
+```
+## Build
+```sh
+docker compose build
+```
+## Run
+```sh
+docker compose up -d
+```
+## Stop
+```sh
+docker compose stop
+```
+## Teardown
+```sh
+docker compose down
+```
